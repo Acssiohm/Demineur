@@ -22,7 +22,7 @@ GamePlayer::FontHandler::FontHandler(const std::string& font_file, int prepare):
 		get_font(i);
 	}
 }
-TTF_Font* GamePlayer::FontHandler::get_font(int font_size){
+TTF_Font* GamePlayer::FontHandler::get_font(size_t font_size){
 	while(m_fonts.size() <= font_size){
 		m_fonts.push_back(nullptr);
 		// m_fonts_av.push_back(false);
@@ -42,13 +42,13 @@ TTF_Font* GamePlayer::FontHandler::get_font(int font_size){
 GamePlayer::GamePlayer(int size, int nb_bombs, Screen * screen): 
 	m_game(size, nb_bombs), 
 	is_first_move(true), 
-	m_font_handler("Fonts/font.ttf", 30), 
 	m_screen(screen),
 	square_size(-1),
 	flag_texture(getTexture("Images/case_flag.png", screen)), 
 	void_texture(getTexture("Images/case_vide.png", screen)), 
 	bomb_texture(getTexture("Images/case_bombe.png", screen)), 
-	back_texture(getTexture("Images/case_back.png", screen)){
+	back_texture(getTexture("Images/case_back.png", screen)),
+	m_font_handler("Fonts/font.ttf", 30){
 		process_changed_win_size();
 		// m_game.reset_modified();
 	}

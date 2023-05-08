@@ -6,15 +6,6 @@
 SDL_Texture * getTexture(const std::string& image_file, Screen * screen);
 
 class GamePlayer{
-	Game m_game;
-	bool is_first_move;
-	Screen * m_screen;
-	int square_size;
-	SDL_Texture 
-		* flag_texture, 
-		* void_texture, 
-		* bomb_texture, 
-		* back_texture;
 	constexpr static std::array<SDL_Color, 8> number_colors = {{
 		{.r = 0  , .g=0  , .b=255, .a=255}, // 1 : 
 		{.r = 0  , .g=128, .b=0  , .a=255}, // 2 : 
@@ -31,9 +22,18 @@ class GamePlayer{
 		const std::string m_font_file;
 	public:
 		FontHandler(const std::string& font_file, int prepare = 0);
-		TTF_Font* get_font(int font_size);
+		TTF_Font* get_font(size_t font_size);
 	};
-
+	
+	Game m_game;
+	bool is_first_move;
+	Screen * m_screen;
+	int square_size;
+	SDL_Texture 
+		* flag_texture, 
+		* void_texture, 
+		* bomb_texture, 
+		* back_texture;
 	FontHandler m_font_handler;
 public:
 	GamePlayer(int size, int nb_bombs, Screen * screen);

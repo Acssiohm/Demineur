@@ -30,7 +30,7 @@ public:
   std::vector<int> voisins(int x, int y) const ;
   std::vector<int> voisins(int i) const;
   
-  int closestSafePosition(int i) const ;
+  int closestSafePosition(size_t i) const ;
   int randomSafePosition() ;
   
   void putBomb(int i);

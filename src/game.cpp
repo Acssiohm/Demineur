@@ -1,6 +1,11 @@
 #include "game.h"
 
-Plateau::Plateau(int size):m_size(size), m_nb_bombs(0), m_grille(m_size*m_size, 0),m_dev(),m_rand_gen(m_dev())  {
+Plateau::Plateau(int size):
+	m_nb_bombs(0), 
+	m_size(size), 
+	m_grille(m_size*m_size, 0),
+	m_dev(),
+	m_rand_gen(m_dev())  {
 }
 Plateau::Plateau(int size, int nb_bombs):Plateau(size){ addBombs(nb_bombs); }
 
@@ -18,7 +23,7 @@ int Plateau::get(int x, int y) const {
 }
 void Plateau::reset(){
 	m_nb_bombs = 0;
-	for (int i = 0; i < m_grille.size(); ++i){
+	for (size_t i = 0; i < m_grille.size(); ++i){
 		m_grille[i] = 0;
 	}
 }
@@ -83,7 +88,7 @@ void Plateau::putBomb(int i){
 	}
 }
 
-int Plateau::closestSafePosition(int i) const {
+int Plateau::closestSafePosition(size_t i) const {
 	while(i < m_grille.size() && isBomb(i)){
 		i++;
 	}
