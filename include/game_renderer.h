@@ -7,12 +7,12 @@ SDL_Texture * getTexture(const std::string& image_file, Screen * screen);
 
 class GamePlayer{
 	constexpr static std::array<SDL_Color, 8> number_colors = {{
-		{.r = 0  , .g=0  , .b=255, .a=255}, // 1 : 
-		{.r = 0  , .g=128, .b=0  , .a=255}, // 2 : 
-		{.r = 255, .g=0  , .b=0  , .a=255}, // 3 : 
-		{.r = 0  , .g=0  , .b=128, .a=255}, // 4 : 
-		{.r = 128, .g=0  , .b=0  , .a=255}, // 5 : 
-		{.r = 200, .g=100, .b=0  , .a=255}, // 6 : 
+		{.r = 0  , .g=0  , .b=255, .a=255}, // 1 : Bleu
+		{.r = 0  , .g=128, .b=0  , .a=255}, // 2 : Vert foncé
+		{.r = 255, .g=0  , .b=0  , .a=255}, // 3 : Rouge
+		{.r = 0  , .g=0  , .b=128, .a=255}, // 4 : Bleu fonçé
+		{.r = 128, .g=0  , .b=0  , .a=255}, // 5 : Rouge foncé
+		{.r = 255, .g=0  , .b=255, .a=255}, // 6 : Rose 
 		{.r = 200, .g=100, .b=0  , .a=255}, // 7 : 
 		{.r = 200, .g=100, .b=0  , .a=255}  // 8 : 
 	}};
