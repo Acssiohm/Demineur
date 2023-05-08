@@ -130,8 +130,23 @@ std::ostream& operator<<(std::ostream& os , const Plateau& p){
 	return os;
 }
 
-Game::Game(int size, int nb_bombs):m_jeu(size, nb_bombs), m_mask(size*size, TileStatus::Revealed) {}
-
+Game::Game(int size, int nb_bombs):m_jeu(size, nb_bombs), m_mask(size*size, TileStatus::Unrevealed) {
+	// for (int i = 0; i < size*size; ++i){
+	// 	m_modified.push_back(i);
+	// }
+}
+// void Game::reset_modified(){
+// 	m_modified.clear();
+// 	for (int i = 0; i < get_size()*get_size(); ++i){
+// 		m_modified.push_back(i);
+// 	}	
+// }
+// void Game::clear_modified(){
+// 	m_modified.clear();
+// }
+// const std::vector<int>& Game::get_modified() const {
+// 	return m_modified;
+// }
 bool Game::is_in_grille(int x, int y) const {
 	return m_jeu.is_in_grille(x, y);
 }
@@ -146,6 +161,7 @@ void Game::reveal(int i, std::unordered_set<int>& already_seen, bool safe){
 	if(flagged(i)){
 		return;
 	}
+	// m_modified.push_back(i);
 	m_mask[i] = TileStatus::Revealed;
 	if(safe && m_jeu.isBomb(i)){
 		m_jeu.addBomb();
@@ -156,7 +172,7 @@ void Game::reveal(int i, std::unordered_set<int>& already_seen, bool safe){
 	}
 	already_seen.insert(i);
 	for(int v : m_jeu.voisins(i)){
-		if(already_seen.count(v)){
+		if(!already_seen.count(v)){
 			reveal(v, already_seen);
 		}
 	}
@@ -197,8 +213,12 @@ bool Game::revealed(int i) const {
 }
 void Game::toggle_flag(int i){
 	if(!revealed(i)){
+		// m_modified.push_back(i);
 		m_mask[i] = flagged(i) ? TileStatus::Unrevealed : TileStatus::Flaged ;
 	}
+}
+void Game::toggle_flag(int x, int y) {
+	return toggle_flag( m_jeu.pos_to_index(x, y) );
 }
 
 

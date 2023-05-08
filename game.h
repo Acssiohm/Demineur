@@ -47,9 +47,14 @@ class Game{
   enum class TileStatus{ Flaged, Revealed, Unrevealed };
   Plateau m_jeu;
   std::vector<TileStatus> m_mask;
+  // std::vector<int> m_modified;
 
 public:
   Game(int size, int nb_bombs);
+  
+  // void clear_modified();
+  // void reset_modified();
+  const std::vector<int>& get_modified() const ;
 
   void reveal(int x, int y, bool safe = false);
   void reveal(int i, bool safe = false);
@@ -72,6 +77,7 @@ public:
   bool revealed(int i) const;
   
   void toggle_flag(int i);
+  void toggle_flag(int x, int y);
 };
 
 std::ostream& operator<<(std::ostream& os , const Game& g);
