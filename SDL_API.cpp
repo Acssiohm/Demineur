@@ -1,5 +1,6 @@
 #include "SDL_API.h"
-
+#include <assert.h>
+#include <iostream>
 Screen::Screen(int width, int height) :window(nullptr), renderer(nullptr),font(nullptr) {
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer);
@@ -8,25 +9,21 @@ Screen::Screen(int width, int height) :window(nullptr), renderer(nullptr),font(n
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_RenderPresent(renderer);
 }
-void Screen::loadFont(std::string font_path, int font_size){
-	font = TTF_OpenFont(font_path.c_str(), font_size);
+void Screen::setFont(TTF_Font * f){
+	font = f;
 }
-void Screen::replaceFont(std::string font_path, int new_font_size){
-	if(font != nullptr){
-		TTF_CloseFont( font ); 
-	}
-	loadFont(font_path, new_font_size);
-}
-
 void Screen::update() {
 	SDL_RenderPresent(renderer);
 }
 void Screen::clear() {
 	SDL_RenderClear(renderer);
-	update();
 }
 void Screen::drawCharChain(const char* text, int x, int y, SDL_Color color) {
+	assert(font != nullptr);
+	assert(text != nullptr);
+	// std::cout << "	HEY 2.1.3 " << text << std::endl;
 	SDL_Surface * text_surface = TTF_RenderText_Solid(font, text, color);
+	// std::cout << "	HEY 2.1.3"<< std::endl;
 	SDL_Texture * text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
 	SDL_Rect text_rect;
 	SDL_QueryTexture(text_texture, nullptr, nullptr, &text_rect.w, &text_rect.h);
@@ -41,58 +38,67 @@ void Screen::drawString(const string& text, int x, int y, SDL_Color color) {
 void Screen::delay(int ms) {
 	SDL_Delay(ms);
 }
-void Screen::setPixel(int x, int y, SDL_Color c) {
-	setColor(c);
-	SDL_RenderDrawPoint(renderer, x, y);
-}
-void Screen::drawLine(int x1, int y1, int x2, int y2, SDL_Color c) {
-	setColor(c);
-	SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
-}
+// void Screen::setPixel(int x, int y, SDL_Color c) {
+// 	setColor(c);
+// 	SDL_RenderDrawPoint(renderer, x, y);
+// }
+// void Screen::drawLine(int x1, int y1, int x2, int y2, SDL_Color c) {
+// 	setColor(c);
+// 	SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+// }
 void Screen::setColor(SDL_Color c){
 	SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
 }
-void Screen::strokeRect(int x, int y, int w, int h, SDL_Color c) {
-	setColor(c);
-	SDL_Rect rect;
-	rect.x = x;
-	rect.y = y;
-	rect.w = w;
-	rect.h = h;
-	SDL_RenderDrawRect(renderer, &rect);
-	update();
-}
-void Screen::fillRect(int x, int y, int w, int h, SDL_Color c) {
-	setColor(c);
-	SDL_Rect rect;
-	rect.x = x;
-	rect.y = y;
-	rect.w = w;
-	rect.h = h;
-	SDL_RenderFillRect(renderer, &rect);
-	update();
-}
+// void Screen::strokeRect(int x, int y, int w, int h, SDL_Color c) {
+// 	setColor(c);
+// 	SDL_Rect rect;
+// 	rect.x = x;
+// 	rect.y = y;
+// 	rect.w = w;
+// 	rect.h = h;
+// 	SDL_RenderDrawRect(renderer, &rect);
+// }
+// void Screen::fillRect(int x, int y, int w, int h, SDL_Color c) {
+// 	setColor(c);
+// 	SDL_Rect rect;
+// 	rect.x = x;
+// 	rect.y = y;
+// 	rect.w = w;
+// 	rect.h = h;
+// 	SDL_RenderFillRect(renderer, &rect);
+// }
 std::pair<int, int> Screen::getWindowSize(){
 	int win_width;
 	int win_height;
 	SDL_GetWindowSize(window, &win_width, &win_height);
 	return {win_width, win_height};
 }
-void Screen::drawSurface(SDL_Surface* surface, int x, int y, int w, int h) {
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+// void Screen::drawSurface(SDL_Surface* surface, int x, int y, int w, int h) {
+// 	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+// 	SDL_Rect dest_rect;
+// 	dest_rect.x = x;
+// 	dest_rect.y = y;
+// 	dest_rect.w = (w == -1) ? surface->w : w;
+// 	dest_rect.h = (h == -1) ? (surface->h * dest_rect.w) / surface->w : h;
+// 	SDL_RenderCopy(renderer, texture, NULL, &dest_rect);
+// 	SDL_DestroyTexture(texture);
+// }
+void Screen::drawTexture(SDL_Texture* texture, int x, int y, int w, int h) {
+	// std::cout << "	HEY 2.1.1 *"<< std::endl;
+	assert(texture != nullptr);
 	SDL_Rect dest_rect;
 	dest_rect.x = x;
 	dest_rect.y = y;
-	dest_rect.w = (w == -1) ? surface->w : w;
-	dest_rect.h = (h == -1) ? (surface->h * dest_rect.w) / surface->w : h;
+	dest_rect.w = w;
+	dest_rect.h = h;
 	SDL_RenderCopy(renderer, texture, NULL, &dest_rect);
-	SDL_DestroyTexture(texture);
+	// std::cout << "	HEY 2.1.2"<< std::endl;
 }
-void Screen::drawImage(const string& path, int x, int y, int w, int h) {
-	SDL_Surface* surface = IMG_Load(path.c_str());
-	drawSurface(surface, x, y, w, h);
-	SDL_FreeSurface(surface);
-}
+// void Screen::drawImage(const string& path, int x, int y, int w, int h) {
+// 	SDL_Surface* surface = IMG_Load(path.c_str());
+// 	drawSurface(surface, x, y, w, h);
+// 	SDL_FreeSurface(surface);
+// }
 
 Screen::~Screen() {
 	SDL_DestroyRenderer(renderer);

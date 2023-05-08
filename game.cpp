@@ -1,556 +1,222 @@
-// #include "game.h"
-
-// #include <iostream>
-// #include <stdbool.h>
-// #include <time.h>
-
-// // Construit une grille de jeu démineur carré taille * taille, où il y aura
-// // nombrebombes bombes.
-// Game::Game(int taille, int nombrebombes) {
-//   n = taille;
-//   nbrbombes = nombrebombes;
-//   tabc = generertableau(-2);
-//   nbrcasescaches = taille * taille;
-// }
-
-// // Révèle la case (tx, ty), en révélant récursivement si la case est vide,
-// // toutes les cases autour. Renvoie l'état de la game après le coup :
-// // - 0 : état quelconque, la partie continue
-// // - -1 : la partie est terminé, une bombe se cachait sous la case
-// // - 1 : Le coup était inutile (déjà révélé, drapeau)
-// // - 2 : Le coup a mis fin a la partie, le joueur a révélé toutes les cases
-// // n'étant pas des bombes.
-// int Game::Coup(int tx, int ty) {
-//   if (!generated) {
-//     tabr = generergrille(tx, ty);
-//   }
-//   if (tabc[tx][ty] != -2 || tabc[tx][ty] == -1) {
-//     return 1; // La case est déjà révélée ou marquée par un drapeau
-//   }
-//   if (tabr[tx][ty] == -1) {
-//     return -1; // La case est minée
-//   }
-//   reveler(tx, ty);
-//   if (nbrcasescaches == nbrbombes) {
-//     return 2;
-//   }
-//   return 0;
-// }
-
-// // Renvoie une copie de la partie identique dans le fond, mais séparé en terme
-// // de mémoire
-// Game Game::Copy() {
-//   int **tabreel = (int **)malloc(sizeof(int *) * n);
-//   int **tabconnu = (int **)malloc(sizeof(int *) * n);
-
-//   for (int i = 0; i < n; i++) {
-//     tabreel[i] = (int *)malloc(sizeof(int) * n);
-//     tabconnu[i] = (int *)malloc(sizeof(int) * n);
-//     for (int j = 0; j < n; j++) {
-//       tabreel[i][j] = tabr[i][j];
-//       tabconnu[i][j] = tabc[i][j];
-//     }
-//   }
-//   return Game(n, nbrbombes, tabreel, tabconnu, nbrcasescaches);
-// }
-
-// Game::~Game() {
-//   freetableau(tabr);
-//   freetableau(tabc);
-// }
-
-// // Renvoie l'état visible de la partie
-// int **Game::GetGame() { return tabc; }
-
-// // Affiche dans la console l'état visible de la partie
-// void Game::PrintGame() { printtableau(tabc); }
-
-// // Joue dans la console une partie de démineur en taille 11*11 avec 10 bombes
-// void Game::GameConsole() {
-//   Game game = Game(11, 10);
-//   game.PrintGame();
-//   int tx;
-//   int ty;
-//   std::cout << "Coordonée x : ";
-//   std::cin >> tx;
-//   std::cout << "Coordonée y : ";
-//   std::cin >> ty;
-
-//   game.Coup(tx, ty);
-
-//   while (1) {
-//     printf("---\n");
-//     game.PrintGame();
-//     printf("Coordonée x : ");
-//     scanf("%u", &tx);
-//     printf("Coordonée y : ");
-//     scanf("%u", &ty);
-//     if (game.Coup(tx, ty) == -1) {
-//       break;
-//     }
-//   }
-//   printf("Vous avez perdu");
-// }
-
-// // Attention, ce constructeur présuppose que la partie a déjà commencé
-// // (minimum le coup de départ)
-// Game::Game(int taille, int nombrebombes, int **tabreel, int **tabconnu,
-//            int nbrcasesinconnues) {
-//   n = taille;
-//   nbrbombes = nombrebombes;
-//   tabc = tabconnu;
-//   tabr = tabreel;
-//   nbrcasescaches = nbrcasesinconnues;
-//   generated = true;
-// }
-
-// int **Game::generertableau(int x) {
-//   int **tab = (int **)malloc(sizeof(int *) * n);
-//   for (int i = 0; i < n; ++i) {
-//     tab[i] = (int *)malloc(sizeof(int) * n);
-//     for (int j = 0; j < n; ++j) {
-//       tab[i][j] = x;
-//     }
-//   }
-//   return tab;
-// }
-
-// int **Game::generergrille(int x0, int y0) {
-//   srand(time(NULL));
-//   int **tab = generertableau(0);
-//   int i = 0;
-//   while (i < nbrbombes) {
-//     int x = rand() % n;
-//     int y = rand() % n;
-//     if (x == x0 && y == y0) {
-//       continue;
-//     }
-
-//     if (tab[x][y] != -1) {
-//       tab[x][y] = -1;
-//       if (x == 0) {
-//         if (y == 0) {
-//           if (tab[x + 1][y] != -1) {
-//             tab[x + 1][y]++;
-//           }
-
-//           if (tab[x][y + 1] != -1) {
-//             tab[x][y + 1]++;
-//           }
-
-//           if (tab[x + 1][y + 1] != -1) {
-//             tab[x + 1][y + 1]++;
-//           }
-//         } 
-//         else if (y == n - 1) {
-//           if (tab[x][y - 1] != -1) {
-//             tab[x][y - 1]++;
-//           }
-
-//           if (tab[x + 1][y - 1] != -1) {
-//             tab[x + 1][y - 1]++;
-//           }
-
-//           if (tab[x + 1][y] != -1) {
-//             tab[x + 1][y]++;
-//           }
-//         } 
-//         else {
-
-//           if (tab[x][y - 1] != -1) {
-//             tab[x][y - 1]++;
-//           }
-
-//           if (tab[x + 1][y - 1] != -1) {
-//             tab[x + 1][y - 1]++;
-//           }
-
-//           if (tab[x + 1][y] != -1) {
-//             tab[x + 1][y]++;
-//           }
-
-//           if (tab[x][y + 1] != -1) {
-//             tab[x][y + 1]++;
-//           }
-
-//           if (tab[x + 1][y + 1] != -1) {
-//             tab[x + 1][y + 1]++;
-//           }
-//         }
-//       } 
-//       else if (x == n - 1) {
-//         if (y == 0) {
-//           if (tab[x - 1][y] != -1) {
-//             tab[x - 1][y]++;
-//           }
-
-//           if (tab[x - 1][y + 1] != -1) {
-//             tab[x - 1][y + 1]++;
-//           }
-
-//           if (tab[x][y + 1] != -1) {
-//             tab[x][y + 1]++;
-//           }
-//         } 
-//         else if (y == n - 1) {
-//           if (tab[x - 1][y - 1] != -1) {
-//             tab[x - 1][y - 1]++;
-//           }
-
-//           if (tab[x][y - 1] != -1) {
-//             tab[x][y - 1]++;
-//           }
-
-//           if (tab[x - 1][y] != -1) {
-//             tab[x - 1][y]++;
-//           }
-//         } 
-//         else {
-//           if (tab[x - 1][y - 1] != -1) {
-//             tab[x - 1][y - 1]++;
-//           }
-
-//           if (tab[x][y - 1] != -1) {
-//             tab[x][y - 1]++;
-//           }
-
-//           if (tab[x - 1][y] != -1) {
-//             tab[x - 1][y]++;
-//           }
-
-//           if (tab[x - 1][y + 1] != -1) {
-//             tab[x - 1][y + 1]++;
-//           }
-
-//           if (tab[x][y + 1] != -1) {
-//             tab[x][y + 1]++;
-//           }
-//         }
-//       } 
-//       else {
-//         if (y == 0) {
-//           if (tab[x - 1][y] != -1) {
-//             tab[x - 1][y]++;
-//           }
-
-//           if (tab[x + 1][y] != -1) {
-//             tab[x + 1][y]++;
-//           }
-
-//           if (tab[x - 1][y + 1] != -1) {
-//             tab[x - 1][y + 1]++;
-//           }
-
-//           if (tab[x][y + 1] != -1) {
-//             tab[x][y + 1]++;
-//           }
-
-//           if (tab[x + 1][y + 1] != -1) {
-//             tab[x + 1][y + 1]++;
-//           }
-//         }
-//         else if (y == n - 1) {
-//           if (tab[x - 1][y - 1] != -1) {
-//             tab[x - 1][y - 1]++;
-//           }
-
-//           if (tab[x][y - 1] != -1) {
-//             tab[x][y - 1]++;
-//           }
-
-//           if (tab[x + 1][y - 1] != -1) {
-//             tab[x + 1][y - 1]++;
-//           }
-
-//           if (tab[x - 1][y] != -1) {
-//             tab[x - 1][y]++;
-//           }
-
-//           if (tab[x + 1][y] != -1) {
-//             tab[x + 1][y]++;
-//           }
-//         } 
-//         else {
-//           if (tab[x - 1][y - 1] != -1) {
-//             tab[x - 1][y - 1]++;
-//           }
-
-//           if (tab[x][y - 1] != -1) {
-//             tab[x][y - 1]++;
-//           }
-
-//           if (tab[x + 1][y - 1] != -1) {
-//             tab[x + 1][y - 1]++;
-//           }
-
-//           if (tab[x - 1][y] != -1) {
-//             tab[x - 1][y]++;
-//           }
-
-//           if (tab[x + 1][y] != -1) {
-//             tab[x + 1][y]++;
-//           }
-
-//           if (tab[x - 1][y + 1] != -1) {
-//             tab[x - 1][y + 1]++;
-//           }
-
-//           if (tab[x][y + 1] != -1) {
-//             tab[x][y + 1]++;
-//           }
-
-//           if (tab[x + 1][y + 1] != -1) {
-//             tab[x + 1][y + 1]++;
-//           }
-//         }
-//       }
-//       i++;
-//     }
-//   }
-//   return tab;
-// }
-
-// void Game::printtableau(int **tab) {
-//   for (int i = 0; i < n; ++i) {
-//     if (i != 0) {
-//       std::cout << "\n";
-//     }
-//     for (int j = 0; j < n; ++j) {
-//       if (tab[i][j] >= 0) {
-//         std::cout << " ";
-//       }
-//       std::cout << tab[i][j];
-//     }
-//     std::cout << std::endl;
-//   }
-// }
-
-// void Game::freetableau(int **tab) {
-//   for (int i = 0; i < n; ++i) {
-//     free(tab[i]);
-//   }
-//   free(tab);
-// }
-
-// void Game::reveler(int tx, int ty) {
-//   int tc = tabc[tx][ty];
-//   tabc[tx][ty] = tabr[tx][ty];
-//   nbrcasescaches--;
-//   if (tabr[tx][ty] == 0 && tc == -2) {
-//     if (tx == 0) {
-//       if (ty == 0) {
-//         reveler(tx, ty + 1);
-//         reveler(tx + 1, ty);
-//         reveler(tx + 1, ty + 1);
-
-//       } else if (ty == n - 1) {
-//         reveler(tx, ty - 1);
-//         reveler(tx + 1, ty - 1);
-//         reveler(tx + 1, ty);
-
-//       } else {
-//         reveler(tx, ty - 1);
-//         reveler(tx, ty + 1);
-//         reveler(tx + 1, ty - 1);
-//         reveler(tx + 1, ty);
-//         reveler(tx + 1, ty + 1);
-//       }
-//     } else if (tx == n - 1) {
-//       if (ty == 0) {
-//         reveler(tx - 1, ty);
-//         reveler(tx - 1, ty + 1);
-//         reveler(tx, ty + 1);
-
-//       } else if (ty == n - 1) {
-//         reveler(tx - 1, ty - 1);
-//         reveler(tx - 1, ty);
-//         reveler(tx, ty - 1);
-
-//       } else {
-//         reveler(tx - 1, ty - 1);
-//         reveler(tx - 1, ty);
-//         reveler(tx - 1, ty + 1);
-//         reveler(tx, ty - 1);
-//         reveler(tx, ty + 1);
-//       }
-//     } else {
-//       if (ty == 0) {
-//         reveler(tx - 1, ty);
-//         reveler(tx - 1, ty + 1);
-//         reveler(tx, ty + 1);
-//         reveler(tx + 1, ty);
-//         reveler(tx + 1, ty + 1);
-
-//       } else if (ty == n - 1) {
-//         reveler(tx - 1, ty - 1);
-//         reveler(tx - 1, ty);
-//         reveler(tx, ty - 1);
-//         reveler(tx + 1, ty - 1);
-//         reveler(tx + 1, ty);
-
-//       } else {
-//         reveler(tx - 1, ty - 1);
-//         reveler(tx - 1, ty);
-//         reveler(tx - 1, ty + 1);
-//         reveler(tx, ty - 1);
-//         reveler(tx, ty + 1);
-//         reveler(tx + 1, ty - 1);
-//         reveler(tx + 1, ty);
-//         reveler(tx + 1, ty + 1);
-//       }
-//     }
-//   }
-// }
-
-// // Construit une grille hypothétique de démineur carré taille * taille, où il
-// // y aura nombrebombes bombes.
-// // Renvoie une position de départ sans aucune information
-// GameHypo::GameHypo(int taille, int nombrebombes) {
-//   n = taille;
-//   nbrbombes = nombrebombes;
-//   tabc = generertableau(-2);
-//   nbrcasescaches = taille * taille;
-// }
-
-// // Un coup dans une game de ce type consiste en fait à déclarer une bombe
-// // Renvoie :
-// //  - 0 si la grille ne devient pas incohérente
-// //  - 1 s'il y a un problème
-// int GameHypo::Coup(int tx, int ty) {
-//   tabc[tx][ty] = -1;
-//   int a = IterationCoup();
-//   while (a == 0) {
-//     a = IterationCoup();
-//   }
-//   if (a == -1) {
-//     return 1;
-//   }
-//   return 0;
-// }
-
-// // Renvoie une copie de la partie identique dans le fond, mais séparé en terme
-// // de mémoire
-// GameHypo GameHypo::Copy() {
-//   int **tabconnu = (int **)malloc(sizeof(int *) * n);
-
-//   for (int i = 0; i < n; i++) {
-//     tabconnu[i] = (int *)malloc(sizeof(int) * n);
-//     for (int j = 0; j < n; j++) {
-//       tabconnu[i][j] = tabc[i][j];
-//     }
-//   }
-//   return GameHypo(n, nbrbombes, tabconnu, nbrcasescaches);
-// }
-
-// GameHypo::~GameHypo() { freetableau(tabc); }
-
-// // Renvoie l'état visible de la partie
-// int **GameHypo::GetGame() { return tabc; }
-
-// // Affiche dans la console l'état visible de la partie
-// void GameHypo::PrintGame() { printtableau(tabc); }
-
-// // Essaye d'extraire un maximum d'informations de la grille connue
-// //(En fait je sais pas trop si c'est nécessaire mais bon)
-// // Renvoie :
-// //  - 1 si la grille est impossible
-// //  - 0 si une information a été déduite
-// //  - -1 si c'est un point fixe
-// int GameHypo::IterationCoup() {
-//   bool modif = false;
-//   for (int x = 0; x < n; x++) {
-//     for (int y = 0; y < n; y++) {
-//       int bombes = 0;
-//       int incertitude = 0;
-//       for (int i = min(x - 1, 0); i < max(x + 1, n - 1); i++) {
-//         for (int j = min(y - 1, 0); i < max(y + 1, n - 1); j++) {
-//           if (i == j) {
-//             continue;
-//           } else if (tabc[i][j] == -1) {
-//             bombes++;
-//           } else if (tabc[i][j] == -2) {
-//             incertitude++;
-//           }
-//         }
-//       }
-//       if (tabc[x][y] >= 0) {
-//         if (bombes + incertitude > tabc[x][y]) {
-//           return 1;
-//         }
-//       } else if (incertitude == 0) {
-//         tabc[x][y] = bombes;
-//         modif = true;
-//       }
-//     }
-//   }
-//   if (modif) {
-//     return 0;
-//   }
-//   return -1;
-// }
-
-// // Attention, ce constructeur présuppose que la partie a déjà commencé
-// // (minimum le coup de départ)
-// GameHypo::GameHypo(int taille, int nombrebombes, int **tabconnu,
-//                    int nbrcasesinconnues) {
-//   n = taille;
-//   nbrbombes = nombrebombes;
-//   tabc = tabconnu;
-//   nbrcasescaches = nbrcasesinconnues;
-// }
-// int **tabc;
-// int nbrcasescaches;
-
-// int **GameHypo::generertableau(int x) {
-//   int **tab = (int **)malloc(sizeof(int *) * n);
-//   for (int i = 0; i < n; ++i) {
-//     tab[i] = (int *)malloc(sizeof(int) * n);
-//     for (int j = 0; j < n; ++j) {
-//       tab[i][j] = x;
-//     }
-//   }
-//   return tab;
-// }
-
-// // Maximum de a et b
-// int GameHypo::max(int a, int b) {
-//   if (a > b) {
-//     return a;
-//   }
-//   return b;
-// }
-// // Minimum de a et b
-// int GameHypo::min(int a, int b) {
-//   if (a < b) {
-//     return a;
-//   }
-//   return b;
-// }
-
-// void GameHypo::printtableau(int **tab) {
-//   for (int i = 0; i < n; ++i) {
-//     if (i != 0) {
-//       printf("\n");
-//     }
-//     for (int j = 0; j < n; ++j) {
-//       if (tab[i][j] >= 0) {
-//         printf(" %d ", tab[i][j]);
-//       } else {
-//         printf("%d ", tab[i][j]);
-//       }
-//     }
-//     printf("\n");
-//   }
-// }
-
-// void GameHypo::freetableau(int **tab) {
-//   for (int i = 0; i < n; ++i) {
-//     free(tab[i]);
-//   }
-//   free(tab);
-// }
-
-// /*int main() {
-// Game::GameConsole();
-// return 0;
-// }*/
+#include "game.h"
+
+Plateau::Plateau(int size):m_size(size), m_nb_bombs(0), m_grille(m_size*m_size, 0),m_dev(),m_rand_gen(m_dev())  {
+}
+Plateau::Plateau(int size, int nb_bombs):Plateau(size){ addBombs(nb_bombs); }
+
+int Plateau::get_size() const {
+	return m_size;
+}
+int Plateau::get_nb_bombs() const {
+	return m_nb_bombs;
+}
+int Plateau::get(int i) const {
+	return m_grille[i];
+}
+int Plateau::get(int x, int y) const {
+	return get(pos_to_index(x, y));
+}
+void Plateau::reset(){
+	m_nb_bombs = 0;
+	for (int i = 0; i < m_grille.size(); ++i){
+		m_grille[i] = 0;
+	}
+}
+
+int Plateau::pos_to_index(int x, int y) const {
+	return x + m_size*y;
+}
+
+bool Plateau::is_in_grille(int x, int y) const {
+	return (x >= 0)&&(x < m_size)&&(y >= 0)&&(y < m_size);
+}
+
+std::vector<int> Plateau::voisins(int x, int y) const {
+	std::vector<int> result;
+	for(int x_offset : {-1, 0, 1}){
+		for(int y_offset : {-1, 0, 1}){
+			if(x_offset == 0 && y_offset == 0){
+				continue;
+			}
+			if(is_in_grille(x + x_offset, y + y_offset)){
+				result.push_back( pos_to_index(x + x_offset, y + y_offset) );
+			}
+		}
+	}
+	return result;
+}
+
+std::vector<int> Plateau::voisins(int i) const {
+	return voisins( i%m_size, i/m_size );
+}
+
+bool Plateau::isBomb(int i) const {
+	return m_grille[i] == -1;
+}
+bool Plateau::isBomb(int x, int y) const {
+	return isBomb(pos_to_index(x, y));
+}
+void Plateau::removeBomb(int i){
+	if(!isBomb(i)){
+		return;
+	}
+	m_grille[i] = 0;
+	m_nb_bombs--;
+	for(int v : voisins(i)){
+		if(!isBomb(v)){
+			m_grille[v]--;
+		} else {
+			m_grille[i]++;
+		}
+	}
+}
+void Plateau::putBomb(int i){
+	if(isBomb(i)){
+		return;
+	}
+	m_grille[i] = -1;
+	m_nb_bombs++;
+	for(int v : voisins(i)){
+		if(!isBomb(v)){
+			m_grille[v]++;
+		}
+	}
+}
+
+int Plateau::closestSafePosition(int i) const {
+	while(i < m_grille.size() && isBomb(i)){
+		i++;
+	}
+	return i;
+}
+int Plateau::nb_safe_tiles() const {
+	return get_size()*get_size() - get_nb_bombs();
+}
+int Plateau::randomSafePosition() {
+	std::uniform_int_distribution<std::mt19937::result_type> distrbute_on_safe(0, nb_safe_tiles() - 1 ); 
+	int rand_pos = distrbute_on_safe(m_rand_gen);
+
+	int result = closestSafePosition(0);
+	for (int i = 0; i < rand_pos; ++i){
+		result = closestSafePosition(result + 1);
+	}
+	return result;
+}
+
+void Plateau::addBomb(){
+	putBomb(randomSafePosition());
+}
+
+void Plateau::addBombs(int nb){
+	for (int i = 0; i < nb; ++i){
+		addBomb();
+	}
+}
+
+std::ostream& operator<<(std::ostream& os , const Plateau& p){
+	os << "Plateau : "<< p.get_nb_bombs() << " bombes de taille " 
+	<< p.get_size() << "x" << p.get_size() << std::endl;
+
+	for (int y = 0; y < p.get_size(); ++y) {
+	for (int x = 0; x < p.get_size(); ++x) {
+		if(p.isBomb(x,y)){
+			os << "| X " ; 
+		} else {
+			os << "| " << p.get(x,y) << " " ;
+		}
+	}
+	os << "|" << std::endl;
+	}
+	return os;
+}
+
+Game::Game(int size, int nb_bombs):m_jeu(size, nb_bombs), m_mask(size*size, TileStatus::Revealed) {}
+
+bool Game::is_in_grille(int x, int y) const {
+	return m_jeu.is_in_grille(x, y);
+}
+void Game::reveal(int x, int y, bool safe){
+	reveal(m_jeu.pos_to_index(x, y), safe);
+}
+void Game::reveal(int i, bool safe){
+	std::unordered_set<int> already_seen;
+	reveal(i, already_seen, safe);
+}
+void Game::reveal(int i, std::unordered_set<int>& already_seen, bool safe){
+	if(flagged(i)){
+		return;
+	}
+	m_mask[i] = TileStatus::Revealed;
+	if(safe && m_jeu.isBomb(i)){
+		m_jeu.addBomb();
+		m_jeu.removeBomb(i);
+	}
+	if(m_jeu.get(i) != 0){
+		return;
+	}
+	already_seen.insert(i);
+	for(int v : m_jeu.voisins(i)){
+		if(already_seen.count(v)){
+			reveal(v, already_seen);
+		}
+	}
+}
+int Game::get(int i) const {
+if(!revealed(i)){
+	std::cerr << "Error : Tried to get the value of an unrevealed tile" << std::endl;
+	exit(1);
+}
+	return m_jeu.get(i);
+}
+int Game::get(int x, int y) const {
+	return get( m_jeu.pos_to_index(x, y) );
+}
+bool Game::isBomb(int i) const {
+	return get(i) == -1;
+}
+bool Game::isBomb(int x, int y) const {
+	return isBomb(m_jeu.pos_to_index(x, y));
+}
+int Game::get_size() const {
+	return m_jeu.get_size();
+}
+int Game::get_nb_bombs() const {
+	return m_jeu.get_nb_bombs();
+}
+bool Game::flagged(int i) const {
+	return m_mask[i] == TileStatus::Flaged;
+}
+bool Game::flagged(int x, int y) const {
+	return flagged( m_jeu.pos_to_index(x, y) );
+}
+bool Game::revealed(int x, int y) const {
+	return revealed( m_jeu.pos_to_index(x, y) );
+}
+bool Game::revealed(int i) const {
+	return m_mask[i] == TileStatus::Revealed;
+}
+void Game::toggle_flag(int i){
+	if(!revealed(i)){
+		m_mask[i] = flagged(i) ? TileStatus::Unrevealed : TileStatus::Flaged ;
+	}
+}
+
+
+std::ostream& operator<<(std::ostream& os , const Game& g){
+	os << "Game : "<< g.get_nb_bombs() << " bombes de taille " 
+	<< g.get_size() << "x" << g.get_size() << std::endl;
+
+	for (int y = 0; y < g.get_size(); ++y) {
+	for (int x = 0; x < g.get_size(); ++x) {
+		if(!g.revealed(x, y)){
+			os << "| " << (g.flagged(x,y) ? "#" : "-") <<" ";
+		} else if(g.isBomb(x,y)){
+			os << "| X " ; 
+		} else {
+			os << "| " << g.get(x,y) << " " ;
+		}
+	}
+	os << "|" << std::endl;
+	}
+	return os;
+}
