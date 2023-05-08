@@ -21,3 +21,6 @@ release: $(BUILD_DIR)/$(SOFTWARE_NAME)
 
 clean:
 	$(RM) -r $(BUILD_DIR)
+
+run: $(BUILD_DIR)/$(SOFTWARE_NAME)
+	./$(BUILD_DIR)/$(SOFTWARE_NAME)
